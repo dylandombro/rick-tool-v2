@@ -3,6 +3,7 @@ const mysql = require("mysql2/promise");
 const multer = require("multer");
 const cors = require("cors");
 const path = require("path");
+const ftp = require("basic-ftp");
 
 const app = express();
 const port = 3000;
@@ -13,7 +14,7 @@ app.use(express.json());
 // Configure multer for file upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Make sure this directory exists
+    cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
     cb(
@@ -33,7 +34,28 @@ const dbConfig = {
   database: "Local_Write_DB",
 };
 
-// API endpoint to handle file upload and data insertion
+// FTP configuration
+const ftpConfig = {
+  host: "your-ftp-host",
+  user: "your-ftp-username",
+  password: "your-ftp-password",
+  secure: true, // set to false if your FTP server doesn't support FTPS
+};
+
+async function uploadToFTP(localFilePath, remoteFilePath) {
+  const client = new ftp.Client();
+  try {
+    await client.access(ftpConfig);
+    await client.uploadFrom(localFilePath, remoteFilePath);
+    return true;
+  } catch (err) {
+    console.error("FTP upload error:", err);
+    return false;
+  } finally {
+    client.close();
+  }
+}
+
 app.post("/insert", upload.single("file"), async (req, res) => {
   if (!req.file) {
     return res.status(400).send("No file uploaded.");
@@ -51,12 +73,20 @@ app.post("/insert", upload.single("file"), async (req, res) => {
     trackType,
   } = req.body;
 
-  const filePath = req.file.path;
+  const localFilePath = req.file.path;
+  const remoteFilePath = `/remote/path/${req.file.filename}`;
 
   try {
+    // Upload file to FTP
+    const ftpSuccess = await uploadToFTP(localFilePath, remoteFilePath);
+    if (!ftpSuccess) {
+      throw new Error("FTP upload failed");
+    }
+
+    // Insert record into database
     const connection = await mysql.createConnection(dbConfig);
 
-    const query = `INSERT INTO your_table_name 
+    const query = `INSERT INTO rick_tool_records 
       (product_code, folder, track_id, race_date, race_number, day_evening, country, stage, track_type, file_path) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
@@ -70,15 +100,17 @@ app.post("/insert", upload.single("file"), async (req, res) => {
       country,
       stage,
       trackType,
-      filePath,
+      remoteFilePath,
     ]);
 
     await connection.end();
 
-    res.status(200).send("Record inserted successfully");
+    res
+      .status(200)
+      .send("Record inserted successfully and file uploaded to FTP");
   } catch (error) {
-    console.error("Error inserting record:", error);
-    res.status(500).send("Error inserting record");
+    console.error("Error:", error);
+    res.status(500).send("Error processing request");
   }
 });
 
