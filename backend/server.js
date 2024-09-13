@@ -1,119 +1,123 @@
+// File: backend/server.js
+
 const express = require("express");
 const mysql = require("mysql2/promise");
 const multer = require("multer");
-const cors = require("cors");
 const path = require("path");
-const ftp = require("basic-ftp");
+const AWS = require("aws-sdk");
+const fs = require("fs").promises;
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-app.use(cors());
-app.use(express.json());
-
-// Configure multer for file upload
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
-
-const upload = multer({ storage: storage });
-
-// Database connection
+// Database configuration
 const dbConfig = {
   host: "localhost",
   port: 3306,
   user: "root",
-  database: "Local_Write_DB",
+  password: "", // Add your password here if you have one
+  database: "race_card_db", // Replace with your actual database name
 };
 
-// FTP configuration
-const ftpConfig = {
-  host: "your-ftp-host",
-  user: "your-ftp-username",
-  password: "your-ftp-password",
-  secure: true, // set to false if your FTP server doesn't support FTPS
-};
+// Multer configuration for file uploads
+const upload = multer({ dest: "backend/uploads/" });
 
-async function uploadToFTP(localFilePath, remoteFilePath) {
-  const client = new ftp.Client();
+// AWS S3 configuration (placeholder)
+// AWS.config.update({ region: 'your-region' });
+// const s3 = new AWS.S3();
+
+// Database connection function
+async function getConnection() {
   try {
-    await client.access(ftpConfig);
-    await client.uploadFrom(localFilePath, remoteFilePath);
-    return true;
-  } catch (err) {
-    console.error("FTP upload error:", err);
-    return false;
-  } finally {
-    client.close();
+    const connection = await mysql.createConnection(dbConfig);
+    console.log("Connected to the database successfully.");
+    return connection;
+  } catch (error) {
+    console.error("Error connecting to the database:", error);
+    throw error;
   }
 }
 
-app.post("/insert", upload.single("file"), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).send("No file uploaded.");
-  }
+// S3 upload function (placeholder)
+async function uploadFileToS3(filePath, bucketName, key) {
+  // This is a placeholder function. Implement actual S3 upload logic here.
+  console.log(`Simulating upload of ${filePath} to ${bucketName}/${key}`);
+  return `https://${bucketName}.s3.amazonaws.com/${key}`;
+}
 
-  const {
-    productCode,
-    folder,
-    trackId,
-    raceDate,
-    raceNumber,
-    dayEvening,
-    country,
-    stage,
-    trackType,
-  } = req.body;
-
-  const localFilePath = req.file.path;
-  const remoteFilePath = `/remote/path/${req.file.filename}`;
-
+// API endpoint to insert a record
+app.post("/api/insertRecord", upload.single("file"), async (req, res) => {
+  let connection;
   try {
-    // Upload file to FTP
-    const ftpSuccess = await uploadToFTP(localFilePath, remoteFilePath);
-    if (!ftpSuccess) {
-      throw new Error("FTP upload failed");
-    }
+    connection = await getConnection();
 
-    // Insert record into database
-    const connection = await mysql.createConnection(dbConfig);
-
-    const query = `INSERT INTO rick_tool_records 
-      (product_code, folder, track_id, race_date, race_number, day_evening, country, stage, track_type, file_path) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-    const [results] = await connection.execute(query, [
+    const {
       productCode,
       folder,
-      trackId,
+      bdsCode,
       raceDate,
       raceNumber,
       dayEvening,
       country,
       stage,
       trackType,
-      remoteFilePath,
-    ]);
+    } = req.body;
 
-    await connection.end();
+    // Simulate S3 upload (replace with actual S3 upload later)
+    // const file = req.file;
+    // const s3Url = await uploadFileToS3(
+    //   file.path,
+    //   "your-bucket-name",
+    //   `${folder}/${file.filename}`
+    // );
 
-    res
-      .status(200)
-      .send("Record inserted successfully and file uploaded to FTP");
+    // Insert record into database
+    // const [result] = await connection.execute(
+    //   "INSERT INTO bris_migration_v5.bds_available_products (product_code, folder, track_id, race_date, race_number, day_evening, country, stage, track_type, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    //   [
+    //     productCode,
+    //     folder,
+    //     bdsCode,
+    //     raceDate,
+    //     raceNumber,
+    //     dayEvening,
+    //     country,
+    //     stage,
+    //     trackType,
+    //     s3Url,
+    //   ]
+    // );
+    const [result] = await connection.execute(
+      "INSERT INTO race_card_db.rick_tool_records (product_code, folder, track_id, race_date, race_number, day_evening, country, stage, track_type, file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        productCode,
+        folder,
+        bdsCode,
+        raceDate,
+        raceNumber,
+        dayEvening,
+        country,
+        stage,
+        trackType,
+        s3Url,
+      ]
+    );
+
+    // Clean up the temporary file
+    await fs.unlink(file.path);
+
+    res.json({ message: "Record inserted successfully", id: result.insertId });
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).send("Error processing request");
+    console.error("Error inserting record:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while inserting the record" });
+  } finally {
+    if (connection) connection.end();
   }
 });
 
+// Start the server
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running on port ${port}`);
 });
