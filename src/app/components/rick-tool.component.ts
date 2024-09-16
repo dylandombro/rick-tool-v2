@@ -38,8 +38,9 @@ import { CommonModule, NgIf } from '@angular/common';
             type="file"
             accept=".pdf,.html"
           />
-          <span *ngIf="selectedFile">{{ selectedFile.name }}</span>
-          <span *ngIf="!selectedFile">Your file name will appear here</span>
+          <span>{{
+            selectedFile?.name || 'Your file name will appear here'
+          }}</span>
         </div>
         <div class="form-grid">
           <mat-form-field>
@@ -54,13 +55,7 @@ import { CommonModule, NgIf } from '@angular/common';
 
           <mat-form-field>
             <mat-label>Folder</mat-label>
-            <input
-              matInput
-              [(ngModel)]="folder"
-              name="folder"
-              required
-              lowercase
-            />
+            <input matInput [(ngModel)]="folder" name="folder" required />
           </mat-form-field>
 
           <mat-form-field>
@@ -92,7 +87,6 @@ import { CommonModule, NgIf } from '@angular/common';
               [(ngModel)]="raceNumber"
               name="raceNumber"
               required
-              value="0"
             />
           </mat-form-field>
 
@@ -106,24 +100,12 @@ import { CommonModule, NgIf } from '@angular/common';
 
           <mat-form-field>
             <mat-label>Country</mat-label>
-            <input
-              matInput
-              [(ngModel)]="country"
-              name="country"
-              required
-              value="USA"
-            />
+            <input matInput [(ngModel)]="country" name="country" required />
           </mat-form-field>
 
           <mat-form-field>
             <mat-label>Stage</mat-label>
-            <input
-              matInput
-              [(ngModel)]="stage"
-              name="stage"
-              required
-              value="F"
-            />
+            <input matInput [(ngModel)]="stage" name="stage" required />
           </mat-form-field>
 
           <mat-form-field>
@@ -188,8 +170,10 @@ export class RickToolComponent {
   onFileSelected(event: Event) {
     const element = event.currentTarget as HTMLInputElement;
     let fileList: FileList | null = element.files;
-    if (fileList) {
+    if (fileList && fileList.length > 0) {
       this.selectedFile = fileList[0];
+    } else {
+      this.selectedFile = null;
     }
   }
 
@@ -216,7 +200,10 @@ export class RickToolComponent {
     formData.append('productCode', this.productCode);
     formData.append('folder', this.folder.toLowerCase());
     formData.append('bdsCode', this.bdsCode);
-    formData.append('raceDate', this.raceDate?.toISOString() || '');
+    formData.append(
+      'raceDate',
+      this.raceDate ? this.raceDate.toISOString() : ''
+    );
     formData.append('raceNumber', this.raceNumber.toString());
     formData.append('dayEvening', this.dayEvening);
     formData.append('country', this.country);
@@ -225,37 +212,12 @@ export class RickToolComponent {
 
     this.databaseService.insertRecord(formData).subscribe(
       (response) => {
-        // Extract year and month from the race date
-        const year = this.raceDate?.getFullYear();
-        const month = (this.raceDate?.getMonth() ?? 0) + 1; // getMonth() returns 0-11
-        const monthPadded = month.toString().padStart(2, '0');
-
-        // Console output for successful upload
-        console.log(
-          `File is valid, and was successfully uploaded to /brisetl/${this.folder.toLowerCase()}/${year}/${monthPadded}`
-        );
-
-        // Example of how the SQL insert statement would look
-        const sqlInsert = `insert into bris_migration_v5.bds_available_products VALUES ('${
-          this.productCode
-        }', '${this.bdsCode}', '${
-          this.raceDate?.toISOString().split('T')[0]
-        }','${this.raceNumber}','${this.dayEvening}','${this.country}','${
-          this.stage
-        }','/brisetl/${this.folder.toLowerCase()}/${year}/${monthPadded}', '${
-          this.selectedFile?.name
-        }','${this.trackType}',NULL)`;
-
-        console.log('Example SQL Insert:');
-        console.log(sqlInsert);
-
-        // Show success message to user (you should implement this)
-        // For example: this.showSuccessMessage('Changes were successful');
+        console.log('Record inserted successfully:', response);
+        // Add any success handling here (e.g., show a success message)
       },
       (error) => {
-        console.error('Changes were unsuccessful', error);
-        // Show error message to user (you should implement this)
-        // For example: this.showErrorMessage('Changes were unsuccessful');
+        console.error('Error inserting record:', error);
+        // Add any error handling here (e.g., show an error message)
       }
     );
   }

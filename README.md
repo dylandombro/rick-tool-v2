@@ -1,5 +1,8 @@
+├─ .gitignore
 ├─ angular.json
 ├─ backend
+│ ├─ backend
+│ │ └─ uploads
 │ ├─ server.js
 │ └─ uploads
 ├─ package-lock.json
@@ -7,8 +10,6 @@
 ├─ README.md
 ├─ src
 │ ├─ app
-│ │ ├─ app.component.css
-│ │ ├─ app.component.html
 │ │ ├─ app.component.ts
 │ │ ├─ app.config.ts
 │ │ ├─ app.routes.ts
@@ -24,7 +25,3 @@
 ├─ tsconfig.app.json
 ├─ tsconfig.json
 └─ tsconfig.spec.json
-
-```
-
-```

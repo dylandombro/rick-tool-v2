@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Kentucky Handicapper's Sheet</title>
+    <link rel="stylesheet" href="https://use.typekit.net/ugb5pwf.css" />
+    <style>
+      /* Import fonts */
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Serif:wght@500;700&display=swap");
+      @import url("https://use.typekit.net/ugb5pwf.css");
+
+      /* Custom font */
+      @font-face {
+        font-family: "HeaderFont";
+        src: url("fonts/NewtonBold.ttf") format("truetype");
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      @font-face {
+        font-family: "Linux Libertine Mono";
+        src: url("https://cdn.jsdelivr.net/gh/khaledhosny/libertine@v5.3.0/LinLibertine_M.ttf")
+          format("truetype");
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      /* Reset and base styles */
+      * {
+        box-sizing: border-box;
+        border-width: thick;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: omni-superfamily, sans-serif;
+        font-size: 8px;
+        margin: 0;
+        padding: 5mm;
+      }
+
+      /* Page setup */
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      .horse-name {
+        display: inline-block;
+        max-width: 100%;
+        white-space: nowrap;
+      }
+
+      .comment-text {
+        font-size: 12px;
+        font-weight: 500;
+        font-family: "times new roman", monospace;
+        line-height: 0.9;
+      }
+
+      /* Header styles */
+      .header {
+        border: 3px solid black;
+        padding: 2px 5px;
+        margin-bottom: 5px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+
+      .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      }
+
+      .header-title {
+        text-align: center;
+        line-height: 0.9;
+        flex-grow: 1;
+      }
+
+      .header h1,
+      .header h2,
+      .header h3 {
+        font-family: "HeaderFont", serif;
+        margin: 0;
+      }
+
+      .header h1 {
+        font-weight: 600;
+        font-size: 70px;
+        transform: scaleY(1.8);
+        margin: 5pt 0 5pt 0;
+        letter-spacing: 1px;
+      }
+
+      .header h2 {
+        font-weight: 700;
+        font-size: 30px;
+        line-height: 1;
+      }
+
+      .header h3 {
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .header-date,
+      .header-track {
+        position: absolute;
+        font-family: Arial, Helvetica, sans-serif !important;
+        font-weight: bold !important;
+        margin-left: 5pt !important;
+      }
+
+      .header-date {
+        margin-top: 5pt !important;
+        top: 2px;
+        left: 5px;
+      }
+
+      .header-track {
+        text-transform: uppercase;
+        bottom: 2px;
+        left: 5px;
+      }
+
+      .header-list {
+        font-family: omni-superfamily, sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.2;
+        list-style-type: disc;
+        padding-left: 20px;
+        margin: 0;
+        width: 20%;
+      }
+
+      /* Race overview styles */
+      .race-overview {
+        border: 1px solid black;
+        padding: 5px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .race-row {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+
+      .race-column {
+        flex: 0 1 16.666%;
+        text-align: center;
+        padding: 2px;
+        box-sizing: border-box;
+        min-width: 0;
+      }
+
+      .race-title {
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        margin-bottom: 2px;
+        font-size: 13px;
+      }
+
+      .race-picks {
+        font-family: "Times New Roman", serif;
+        margin: 0 0 0 15px;
+        padding: 0;
+        list-style-type: none;
+        font-size: 12px;
+        text-transform: uppercase;
+        line-height: 0.9;
+        text-align: left;
+      }
+
+      .race-picks li {
+        margin-bottom: 1px;
+      }
+
+      /* Race container styles */
+      .race-container {
+        margin-top: 0;
+        margin-bottom: 10px;
+        page-break-inside: avoid;
+      }
+
+      .race-info {
+        display: flex;
+        justify-content: space-between;
+        font-family: Arial, sans-serif;
+        text-align: left;
+        font-weight: bold;
+        font-size: 14px;
+        margin: 0 15px 2px 0;
+        padding: 0 2px;
+        gap: 10px;
+      }
+
+      .race-info span {
+        flex: 1;
+        white-space: nowrap;
+      }
+
+      /* Table styles */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        font-weight: 450;
+        font-family: "Times New Roman", Times, serif;
+        table-layout: fixed;
+        margin-top: 0px;
+        line-height: 0.8;
+      }
+
+      tr {
+        height: 1em;
+      }
+
+      th,
+      td {
+        padding: 0 !important;
+        /* Remove all padding and override any inherited styles */
+        line-height: 0.8 !important;
+        /* Force line height to be as small as possible */
+        height: 1em !important;
+        /* Set a fixed height for each cell */
+        vertical-align: top !important;
+        /* Align content to the top of the cell */
+      }
+
+      td {
+        padding: 0 0 0.2em 0 !important;
+        /* Add bottom padding */
+        vertical-align: top !important;
+        overflow: visible !important;
+        /* Allow overflow */
+        position: relative;
+        /* For absolute positioning of descenders */
+      }
+
+      .jockey-weight {
+        font-size: 0.8em;
+        vertical-align: super;
+        line-height: 0;
+      }
+
+      th {
+        font-weight: 400;
+        font-size: 11px;
+        line-height: 1;
+        vertical-align: bottom;
+        padding: 1px 1px;
+        text-align: center;
+      }
+
+      /* Column-specific styles */
+      .col-program-number {
+        width: 2%;
+        text-align: right;
+        font-weight: bold;
+      }
+
+      .col-mud {
+        width: 1.5%;
+        text-align: center;
+      }
+
+      .col-horse {
+        width: 14%;
+        text-align: left;
+        text-transform: uppercase;
+      }
+
+      .col-odds {
+        width: 3%;
+        text-align: right;
+      }
+
+      .col-med {
+        width: 2%;
+        text-align: center;
+      }
+
+      .col-eqp {
+        width: 2%;
+      }
+
+      .col-cls {
+        width: 1.5%;
+        text-align: center;
+      }
+
+      .col-days {
+        width: 2%;
+        text-align: center;
+      }
+
+      .col-comments {
+        width: 26%;
+        text-align: left;
+        padding: 0 1px;
+        white-space: nowrap;
+        letter-spacing: -0.2px;
+      }
+
+      .col-jockey-win {
+        width: 3%;
+        text-align: center;
+      }
+
+      .col-jockey {
+        width: 12%;
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      /* New styles for jockey weight */
+      .col-jockey sup {
+        font-size: 0.7em;
+        line-height: 0;
+        position: relative;
+        vertical-align: baseline;
+        top: -0.5em;
+        left: 0.1em;
+      }
+
+      .col-jockey span {
+        display: inline-block;
+        line-height: 0.8;
+        position: relative;
+        bottom: 0.1em;
+      }
+
+      .col-trainer-win {
+        width: 3%;
+        text-align: center;
+      }
+
+      .col-trainer {
+        width: 12%;
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      .col-pace,
+      .col-spd,
+      .col-class {
+        width: 2%;
+        text-align: center;
+        padding: 0;
+      }
+
+      /* Comments container styles */
+      .comments-container {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 2px;
+        margin-top: 2px;
+        margin-bottom: -5px;
+      }
+
+      .general-comment {
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-size: 11px;
+        flex: 0 0 100%;
+        border: 1px solid black;
+        margin-bottom: 5px;
+        padding: 3px;
+        text-align: left;
+        width: 85%;
+        margin-left: auto;
+        margin-right: auto;
+        min-height: 4em;
+        line-height: 1;
+      }
+
+      .bet-box {
+        width: 20%;
+        border: 1px solid black;
+        padding: 5px;
+        font-size: 11px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        line-height: 0.8;
+      }
+
+      .bottom-row {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .center-boxes {
+        display: flex;
+        justify-content: space-between;
+        width: 70%;
+        font-size: 15px;
+        line-height: 0.8;
+      }
+
+      .center-box {
+        flex: 1;
+        padding: 5px;
+        font-size: 10px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .center-box p {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+      }
+
+      .longshot-value {
+        font-weight: bold !important;
+        display: flex;
+        justify-content: left;
+        height: 100%;
+      }
+
+      .bet-box h4,
+      .center-box h4 {
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        margin: 0 0 2px 0;
+        font-size: 10px;
+      }
+
+      .bet-box p,
+      .center-box p {
+        font-family: "Times New Roman", serif;
+        font-weight: normal;
+      }
+
+      .uppercase {
+        text-transform: uppercase;
+      }
+
+      hr {
+        border: none;
+        height: 1px;
+        background-color: black;
+      }
+
+      .page-break-before {
+        page-break-before: always;
+      }
+
+      .race-container {
+        page-break-inside: avoid;
+      }
+
+      .m {
+        line-height: 0.5;
+      }
+    </style>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const commentCells = document.querySelectorAll(".col-comments");
+        let maxHeight = 0;
+
+        commentCells.forEach((cell) => {
+          const height = cell.offsetHeight;
+          if (height > maxHeight) {
+            maxHeight = height;
+          }
+        });
+
+        commentCells.forEach((cell) => {
+          cell.style.height = `${maxHeight}px`;
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div class="header">
+      <h3 class="header-date">{{formatDate raceDate}}</h3>
+      <div class="header-row">
+        <ul class="header-list">
+          <li>Expert Picks</li>
+          <li>Medication</li>
+          <li>Morning Line Odds</li>
+        </ul>
+        <div class="header-title">
+          <h2 style="margin-bottom: 2pt">The</h2>
+          <h1>KENTUCKY</h1>
+          <h2 style="margin-bottom: 2pt; margin-top: 10pt">
+            Handicapper's Sheet
+          </h2>
+        </div>
+        <ul class="header-list">
+          <li>Speed Ratings</li>
+          <li>Pace Ratings</li>
+          <li>Class Ratings</li>
+        </ul>
+      </div>
+      <h3 class="header-track">{{formatTrackName trackId}}</h3>
+    </div>
+
+    <div class="race-overview">
+      {{#with (splitRaces races)}}
+      <div class="race-row">
+        {{#each firstRow}}
+        <div class="race-column">
+          <p class="race-title">{{numberToWords @index}} RACE</p>
+          <ul class="race-picks">
+            {{#each topPicks}}
+            <li><span class="horse-name">{{this}}</span></li>
+            {{/each}}
+          </ul>
+        </div>
+        {{/each}}
+      </div>
+      {{#if secondRow}}
+      <div class="race-row">
+        {{#each secondRow}}
+        <div class="race-column">
+          <p class="race-title">
+            {{numberToWords (add @index ../firstRowCount)}} RACE
+          </p>
+          <ul class="race-picks">
+            {{#each topPicks}}
+            <li><span class="horse-name">{{this}}</span></li>
+            {{/each}}
+          </ul>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}} {{/with}}
+    </div>
+    {{#each handicapperData}}
+    <div
+      class="race-container {{#if (isPageBreak @index)}}page-break-before{{/if}}"
+    >
+      {{#if (showTableHeader @index)}}
+      <table>
+        <thead>
+          <tr style="height: 2.65em">
+            <th
+              style="
+                position: relative;
+                left: -15px;
+                width: 3%;
+                text-align: right;
+                font-weight: bold;
+              "
+              class="col-program-number"
+            >
+              <br /><br />#
+            </th>
+            <th
+              style="
+                width: 3%;
+                text-align: center;
+                position: relative;
+                right: 12px;
+              "
+              class="col-mud"
+            >
+              <br /><br />Mud
+            </th>
+            <th
+              style="
+                width: 13%;
+                text-align: left;
+                text-transform: none;
+                position: relative;
+                left: 6px;
+              "
+              class="col-horse"
+            >
+              <br /><br />Horse
+            </th>
+            <th
+              style="
+                width: 4%;
+                text-align: right;
+                transform: rotate(45deg);
+                position: relative;
+                top: 8px;
+                right: 20px;
+              "
+              class="col-odds"
+            >
+              Odds
+            </th>
+            <th
+              style="
+                width: 4%;
+                transform: rotate(45deg);
+                position: relative;
+                top: 10px;
+                right: 34px;
+              "
+              class="col-med"
+            >
+              Med
+            </th>
+            <th
+              style="width: 3%; position: relative; right: 35px"
+              class="col-eqp"
+            >
+              <br />Eqp<br />Chg
+            </th>
+            <th
+              style="
+                width: 3%;
+                text-align: center;
+                position: relative;
+                right: 36px;
+              "
+              class="col-cls"
+            >
+              <br />Cls<br />Chg
+            </th>
+            <th
+              style="
+                width: 3%;
+                text-align: center;
+                position: relative;
+                right: 35px;
+              "
+              class="col-days"
+            >
+              <br />Days<br />Away
+            </th>
+            <th
+              style="
+                width: 24%;
+                text-align: left;
+                padding: 0 1px;
+                letter-spacing: -0.2px;
+                position: relative;
+                left: 20px;
+              "
+              class="col-comments"
+            >
+              <br /><br />COMMENTS
+            </th>
+            <th
+              style="
+                width: 4%;
+                text-align: center;
+                position: relative;
+                right: 20px;
+              "
+              class="col-jockey-win"
+            >
+              <br />'23-'24<br style="padding-bottom: 3px" />Win %
+            </th>
+            <th style="width: 11%; text-align: left" class="col-jockey">
+              <br /><br />Jockey
+            </th>
+            <th
+              style="
+                width: 4%;
+                text-align: center;
+                position: relative;
+                right: 20px;
+              "
+              class="col-trainer-win"
+            >
+              <br />'23-'24<br />Win %
+            </th>
+            <th
+              style="width: 11%; text-align: left; white-space: nowrap"
+              class="col-trainer"
+            >
+              <br /><br />Trainer
+            </th>
+            <th
+              style="
+                width: 2%;
+                text-align: center;
+                padding: 0;
+                position: relative;
+                right: 14px;
+              "
+              class="col-pace"
+            >
+              <br /><br />Pace
+            </th>
+            <th
+              style="
+                width: 2%;
+                text-align: center;
+                padding: 0;
+                position: relative;
+                right: 8px;
+              "
+              class="col-spd"
+            >
+              <br /><br />Spd
+            </th>
+            <th
+              style="
+                width: 2%;
+                text-align: center;
+                padding: 0;
+                position: relative;
+                right: 5px;
+              "
+              class="col-class"
+            >
+              <br /><br />Class
+            </th>
+          </tr>
+        </thead>
+      </table>
+      {{/if}}
+      <hr />
+
+      <div class="race-info">
+        <span>{{numberToWords (subtract raceNumber 1)}} RACE</span>
+        <span style="margin-left: -20px">{{distance}}</span>
+        <span style="text-align: left; position: relative; right: 50px"
+          >{{formatHCPAgeRestriction ageRestriction sexRestriction}}</span
+        >
+        <span style="text-align: right; position: relative; left: 10px"
+          >{{raceType}}{{#if claimingPrice}} ${{claimingPrice}}{{/if}}</span
+        >
+        <span style="text-align: right; position: relative; left: 5px"
+          >PURSE ${{purse}}</span
+        >
+      </div>
+
+      <div class="comments-container">
+        <div class="bottom-section">
+          <div class="general-comment">
+            <p>{{generalComment}}</p>
+          </div>
+          <div class="bottom-row">
+            <div class="bet-box">
+              <h4>{{betBox1Type}}</h4>
+              <p>{{betBox1Details}}</p>
+            </div>
+            <div class="center-boxes">
+              <div class="center-box uppercase">
+                <h4>TODAY'S PICKS</h4>
+                <p>
+                  {{#each (slice topSelections 0 3)}} {{this}}<br />
+                  {{/each}}
+                </p>
+              </div>
+              <div class="center-box uppercase">
+                <h4>SPEED</h4>
+                <p>
+                  {{#each (getTopSpeedHorses horses 3)}} {{horseName}}<br />
+                  {{/each}}
+                </p>
+              </div>
+              <div class="center-box uppercase">
+                <h4>CLASS</h4>
+                <p>
+                  {{#each (getTopClassHorses horses 3)}} {{horseName}}<br />
+                  {{/each}}
+                </p>
+              </div>
+              <div class="center-box uppercase">
+                <h4>LONGSHOT</h4>
+                <br />
+                <p class="longshot-value">{{longshot}}</p>
+              </div>
+            </div>
+            <div class="bet-box">
+              <h4>{{betBox2Type}}</h4>
+              <p>{{betBox2Details}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{/each}}
+  </body>
+</html>
