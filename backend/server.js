@@ -75,6 +75,14 @@ function formatDate(dateString) {
   return date.toISOString().split("T")[0];
 }
 
+// Function to handle file upload (placeholder for future S3 integration)
+async function handleFileUpload(file) {
+  // TODO: Replace this with S3 upload logic when ready
+  console.log("File received:", file.originalname);
+  // For now, we'll just return the original filename
+  return file.originalname;
+}
+
 // API endpoint to insert a record
 app.post(
   "/api/insertRecord",
@@ -100,8 +108,8 @@ app.post(
         trackType,
       } = req.body;
 
-      // Use the original filename as the file path for now
-      const filePath = req.file ? req.file.originalname : "";
+      // Handle file upload (prepared for future S3 integration)
+      const filePath = req.file ? await handleFileUpload(req.file) : "";
 
       // Format the date
       const formattedRaceDate = formatDate(raceDate);
