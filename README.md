@@ -1,8 +1,6 @@
-├─ .gitignore
 ├─ angular.json
 ├─ backend
 │ ├─ backend
-│ │ └─ uploads
 │ ├─ server.js
 │ └─ uploads
 ├─ package-lock.json
@@ -13,7 +11,10 @@
 │ │ ├─ app.component.ts
 │ │ ├─ app.config.ts
 │ │ ├─ app.routes.ts
+│ │ ├─ auth
+│ │ │ └─ auth.config.ts
 │ │ ├─ components
+│ │ │ ├─ login-callback.component.ts
 │ │ │ └─ rick-tool.component.ts
 │ │ └─ database.service.ts
 │ ├─ assets
@@ -25,3 +26,7 @@
 ├─ tsconfig.app.json
 ├─ tsconfig.json
 └─ tsconfig.spec.json
+
+```
+
+```
